@@ -1,0 +1,50 @@
+services:
+#crearemos un contenedor desde la imagen de development para testear
+  angular-test:
+    build:
+    #el context es donde está nuestro archivo.yml
+      context: .
+    #en target se mira la imagen a utilizar 
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: ["ng","test","--no-watch","--progress","--browsers=ChromeHeadlessNoSandbox"]
+  #Ejecuto el test
+  #command: ["ng","test","--watch","--progress","--browsers=ChromeHeadlessNoSandbox"]
+  angular-app:
+    build:
+      context: .
+      target: development
+    ports:
+      - "4200:4200"
+      #Aquí se expone el puerto 4200
+    volumes:
+      - .:/app 
+      - /app/node_modules
+    command: ["ng","serve","--host","0.0.0.0","--poll","2000"]
+  
+  #Se va a tener un angular cli en caso de que se quiera crear un nuevo componenet con angular cli("ng","new","generate","component")
+  angular-cli:
+    build: 
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    entrypoint: [""]
+    #en este caso en el angular cli no hay comandos ya que se lo recibirá de afuera 
+    #en cada uno de los casos del development se hace el volumen
+
+  #Aquí se crea el contenedor de produccion
+  angular-prod:
+    build:
+      context: .
+      target: build
+    ports:
+      - "80:80"
+  
+  #Tenemos los archivos pero no tenemos creados las imagenes 
+  #1.- docker-compose up --build angular-app
+  #El package/json es un archivo de configuración donde estan instaladas todas las versiones y dependencias que se utilizan
+  #El angular test sirve para correr nuestros unit test
